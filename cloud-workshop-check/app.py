@@ -28,28 +28,42 @@ class ListValidator(WorkshopValidator):
             return True, "OK"
         return False, self.msg
 
+class TrueValidator(WorkshopValidator):
+    def validate(self, answer):
+        return True, "OK"
+
 class Workshop(Resource):
     validators = {}
 
     def _results(self, messages, status):
         return make_response(jsonify({"results": messages}), status)
 
+    def _extra_validations(self, data):
+        return (True, "")
+
     def post(self):
         data = request.get_json()
 
         if data.get("project_id", "") == "":
-            return results(["Empty project ID"], 400)
+            return self._results(["Empty project ID"], 400)
         del data["project_id"]
+
+        if set(data.keys()) != set(self.validators.keys()):
+            return self._results(["Missing answers"], 400)
 
         errors = []
         for k, v in data.items():
             if k not in self.validators:
-                errors.append("Unexpected answer type {}".format(k))
+                # Ignore missing validators
                 continue
 
             ok, msg = self.validators[k].validate(v)
             if not ok:
                 errors.append(msg)
+
+        ok, msg = self._extra_validations(data)
+        if not ok:
+            errors.append(msg)
 
         if len(errors) > 0:
             return self._results(errors, 400)
@@ -64,12 +78,23 @@ class Workshop101(Workshop):
 
 class Workshop102(Workshop):
     validators = {
-        "disk": StringValidator("c2-7", "You used the wrong flavor"),
-        "mounts": StringValidator("buster", "You used the wrong image"),
+        "disk": StringValidator("sdb,sdb1", "Your volume is not attached or it does not have a single partition"),
+        "mounts": StringValidator("/dev/sdb1", "Your volume is not mounted on /mnt"),
         "hostname": ListValidator(["vm01", "vm02"], "The name of your instance is incorrect"),
     }
 
-api.add_resource(Workshop101, '/101')
+class Workshop103(Workshop):
+    validators = {
+        "ip_eth1": TrueValidator(None, None),
+        "hostname": ListValidator(["vm01", "vm02"], "The name of your instance is incorrect"),
+    }
 
-#if __name__ == "__main__":
-#    app.run(debug=(os.environ.get("DEBUG", "0") == "1"))
+    def _extra_validations(self, data):
+        if (data.get("hostname", "") == "vm01" and data.get("ip_eth1", "") == "10.0.0.100") or (data.get("hostname", "") == "vm02" and data.get("ip_eth1", "") == "10.0.0.101"):
+            return True, "OK"
+        return False, "eth1 does not have the correct IP address"
+
+
+api.add_resource(Workshop101, '/101')
+api.add_resource(Workshop102, '/102')
+api.add_resource(Workshop103, '/103')
