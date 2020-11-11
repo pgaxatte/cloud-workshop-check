@@ -31,7 +31,7 @@ class ListValidator(WorkshopValidator):
 class Workshop(Resource):
     validators = {}
 
-    def _results(messages, status):
+    def _results(self, messages, status):
         return make_response(jsonify({"results": messages}), status)
 
     def post(self):

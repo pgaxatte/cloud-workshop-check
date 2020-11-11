@@ -11,6 +11,7 @@ setup(
     install_requires=[
         'Flask==1.1.2',
         'Flask-RESTful==0.3.8',
+        'waitress==1.4.4'
     ],
 
     classifiers=[
