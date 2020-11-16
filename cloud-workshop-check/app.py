@@ -78,7 +78,7 @@ class Workshop101(Workshop):
 
 class Workshop102(Workshop):
     validators = {
-        "disk": StringValidator("sdb,sdb1", "Your volume is not attached or it does not have a single partition"),
+        "disks": StringValidator("sdb,sdb1", "Your volume is not attached or it does not have a single partition"),
         "mounts": StringValidator("/dev/sdb1", "Your volume is not mounted on /mnt"),
         "hostname": ListValidator(["vm01", "vm02"], "The name of your instance is incorrect"),
     }
