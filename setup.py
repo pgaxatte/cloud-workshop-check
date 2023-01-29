@@ -9,9 +9,9 @@ setup(
     license='BSD 2-clause',
     packages=['cloud-workshop-check'],
     install_requires=[
-        'Flask==1.1.2',
-        'Flask-RESTful==0.3.8',
-        'waitress==1.4.4'
+        'Flask==2.2.2',
+        'Flask-RESTful==0.3.9',
+        'waitress==2.1.2'
     ],
 
     classifiers=[

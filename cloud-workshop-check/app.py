@@ -7,6 +7,10 @@ from flask_restful import Resource, Api
 app = Flask(__name__)
 api = Api(app)
 
+class HealthCheck(Resource):
+    def get(self):
+        return { "result": "OK" }
+
 class WorkshopValidator(ABC):
     def __init__(self, expected, msg):
         self.expected = expected
@@ -95,6 +99,7 @@ class Workshop103(Workshop):
         return False, "eth1 does not have the correct IP address"
 
 
+api.add_resource(HealthCheck, '/health')
 api.add_resource(Workshop101, '/101')
 api.add_resource(Workshop102, '/102')
 api.add_resource(Workshop103, '/103')
